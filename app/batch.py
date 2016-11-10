@@ -1,5 +1,6 @@
 """Continually transmit temperatures from database to heatseeknyc.com."""
 
+import os
 import logging
 import time
 
@@ -19,7 +20,7 @@ def transmit_temperature(temperature):
                    time=temperature['hub_time'].timestamp(),
                    verification='c0ffee')
     logging.info('POSTing {}...'.format(reading))
-    response = requests.post('http://app.heatseek.org/readings.json',
+    response = requests.post("{}/readings.json".format(os.environ['RELAY_HEATSEEK_APP']),
                              json=dict(reading=reading))
     if response.status_code != requests.codes.ok:
         logging.error('request %s got %s response %s',

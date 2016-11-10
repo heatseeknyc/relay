@@ -1,0 +1,2 @@
+export RELAY_DB_NAME=relay_development
+export RELAY_DB_USERNAME=bolandrm
