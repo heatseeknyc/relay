@@ -1,32 +1,16 @@
 port=5000
 
-. dev/docker-machine.sh
+relay_db_name=relay_development
 
-set +e
-docker stop app
-docker stop db
-docker rm app
-docker rm db
-set -e
-
-docker build -t db db
-docker build -t db:dev dev/db
-docker run --name db --volumes-from db-data -d db:dev
-
-docker build -t app app
-docker build -t app:dev dev/app
-
-while ! bash db/connect.sh psql -c select; do
-    sleep 1
-done
+[ -z "$RELAY_DB_USERNAME" ] && echo "Need to set RELAY_DB_USERNAME env var" && exit 1;
 
 version=$(awk '/^.set version / {print $3}' db/schema.sql)
-if [[ $(bash db/connect.sh psql -tc '"select version from version"' < /dev/null | awk '{print $1}') != $version ]]; then
-    # schema is not latest version, so start over
-    docker rm db-data
-    . db/init.sh
-    . dev/run.sh
+if [[ $(psql -U $RELAY_DB_USERNAME -d $relay_db_name -tc 'select version from version' < /dev/null | awk '{print $1}') != $version ]]; then
+  echo "Version is not correct"
+  exit 1
 fi
 
-echo -e "\n###\n### Starting server at http://$(docker-machine ip $machine):$port\n###\n"
-exec docker run --name app --link db -v "$PWD/app":/opt/app:ro -p $port:$port app:dev
+#    psql -U $RELAY_DB_USERNAME -d $RELAY_DB_NAME -a -f db/schema.sql
+#    . dev/run.sh
+
+RELAY_DB_NAME=$relay_db_name gunicorn -w 4 -b "0.0.0.0:$port" app:app --log-file=-

@@ -9,10 +9,15 @@ LIVE_SLEEP_PERIOD = (59*60 + 50) * 100  # 59m50s in centiseconds
 
 
 def get_db():
-    return psycopg2.connect(host=os.environ['DB_PORT_5432_TCP_ADDR'],
-                            port=os.environ['DB_PORT_5432_TCP_PORT'],
-                            user='postgres',
-                            cursor_factory=psycopg2.extras.DictCursor)
+    if os.environ.get('DATABASE_URL'):
+        return psycopg2.connect(os.environ.get('DATABASE_URL'),
+                                cursor_factory=psycopg2.extras.DictCursor)
+    else:
+        return psycopg2.connect(host='localhost',
+                                port=5432,
+                                database=os.environ["RELAY_DB_NAME"],
+                                user=os.environ["RELAY_DB_USERNAME"],
+                                cursor_factory=psycopg2.extras.DictCursor)
 
 def get_xbee_id(id, cursor):
     if len(id) == 16: return id  # already an xbee id

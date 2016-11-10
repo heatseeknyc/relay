@@ -1,4 +1,0 @@
-Host localhost
-     User pi
-     StrictHostKeyChecking no
-     UserKnownHostsFile /dev/null
