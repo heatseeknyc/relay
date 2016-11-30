@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import operator
 import os
@@ -81,27 +81,29 @@ class Hub(flask.views.MethodView):
 
     @staticmethod
     def patch(id):
-        cursor = db.cursor()
-        # TODO actually look at the data, which should be something like hourly=true...
-        cursor.execute('select port from hubs where hub_id=%s and port is not null'
-                       ' order by time desc limit 1', (id,))
-        row = cursor.fetchone()
-        if not row: return 'no ssh port for hub', 404
-
-        command = ('sudo PYTHONPATH=firmware python3 -m hub.set_sleep_period {}'
-                   .format(common.LIVE_SLEEP_PERIOD))
-        response = requests.post('http://{}:{}/{}'.format(os.environ['TUNNEL_PORT_80_TCP_ADDR'],
-                                                          os.environ['TUNNEL_PORT_80_TCP_PORT'],
-                                                          row['port']),
-                                 dict(command=command))
-        logging.info('tunnel response:\n' + response.text)
-        response.raise_for_status()
+        db.cursor().execute('insert into commands (hub_id, action, params)'
+                            ' values (%s, %s, %s)', (id, "change_sleep_period", common.LIVE_SLEEP_PERIOD))
         return 'ok'
+
 
 # PATCHing doesn't play well with Chrome Data Compression Proxy, so we fake it with POST:
 @app.route('/hubs/<id>/patch', methods=('POST',))
 def hub_patch(id):
     return Hub.patch(id)
+
+@app.route('/hubs/<id>/commands')
+def hub_commands(id):
+    cursor = db.cursor()
+
+    if len(id) != 16:
+        return flask.redirect(flask.url_for('hub_config', id=common.get_xbee_id(id, cursor)))
+
+    one_minute_ago = datetime.now() - timedelta(minutes=1)
+    cursor.execute('select action, params from commands where hub_id=%s'
+                   ' and created_at > %s', (id, one_minute_ago))
+    commands = cursor.fetchall()
+
+    return flask.jsonify(commands)
 
 
 @app.route('/cells/')

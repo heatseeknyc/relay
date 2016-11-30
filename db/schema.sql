@@ -1,4 +1,4 @@
-\set version 5  -- if you change this file, increment me!
+\set version 6  -- if you change this file, increment me!
 create table version (version integer not null);
 insert into version values (:version);
 
@@ -47,3 +47,12 @@ create table xbees (
     id text unique not null check (id != ''),
     short_id text unique not null check (short_id != '')
 );
+
+create table commands (
+    id serial primary key,
+    hub_id text not null check (hub_id != ''),
+    action text not null,
+    params text,
+    created_at timestamp with time zone not null default now()
+);
+create index on commands (hub_id, created_at);
