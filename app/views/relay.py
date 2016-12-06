@@ -81,8 +81,13 @@ class Hub(flask.views.MethodView):
 
     @staticmethod
     def patch(id):
+        if flask.request.form.get('hourly'):
+            sleep_period = common.LIVE_SLEEP_PERIOD
+        else:
+            sleep_period = 1
+
         db.cursor().execute('insert into commands (hub_id, action, params)'
-                            ' values (%s, %s, %s)', (id, "change_sleep_period", common.LIVE_SLEEP_PERIOD))
+                            ' values (%s, %s, %s)', (id, "change_sleep_period", sleep_period))
         return 'ok'
 
 
@@ -100,7 +105,7 @@ def hub_commands(id):
 
     one_minute_ago = datetime.now() - timedelta(minutes=1)
     cursor.execute('select action, params from commands where hub_id=%s'
-                   ' and created_at > %s', (id, one_minute_ago))
+                   ' and created_at > %s order by created_at desc', (id, one_minute_ago))
     commands = cursor.fetchall()
 
     return flask.jsonify(commands)

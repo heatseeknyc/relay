@@ -16,6 +16,9 @@ $(function() {
   $('#hourly').click(function() {
     $.post(HUB_PATCH_URL, {hourly: true});
   });
+  $('#test').click(function() {
+    $.post(HUB_PATCH_URL, {test_mode: true});
+  });
 
   refreshSoon();
 

@@ -15,4 +15,6 @@ fi
 #    psql -U $RELAY_DB_USERNAME -d $RELAY_DB_NAME -a -f db/schema.sql
 #    . dev/run.sh
 
-gunicorn -w 4 -b "0.0.0.0:$port" app:app --log-file=-
+gunicorn -w 4 -b "0.0.0.0:$port" app:app --log-file=- --error-logfile=- --log-level=debug
+
+# FLASK_APP=app.py FLASK_DEBUG=1 flask run
