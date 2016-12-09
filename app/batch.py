@@ -8,7 +8,6 @@ import requests
 
 from . import common
 
-
 logging.basicConfig(level=logging.INFO)
 
 
@@ -55,6 +54,10 @@ def transmit():
                 time.sleep(1)
 
         time.sleep(1)
+
+        # Notify deadmansnitch that the script is still running properly
+        if os.environ.get('BATCH_WORKER_SNITCH_ID'):
+            requests.get("https://nosnch.in/{}".format(os.environ["BATCH_WORKER_SNITCH_ID"]))
 
 def main():
     while True:
