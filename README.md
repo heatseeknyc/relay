@@ -3,6 +3,7 @@
 ## Initial Setup
 
 1. Copy `.env-sample.sh` to `.env.sh` and update the variables to reflect postgres user and database name.
+1. Install python libraries `pip3 install -r requirements.txt`
 1. Run `bash dev/init.sh`
 
 ## Running
