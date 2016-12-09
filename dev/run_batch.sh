@@ -10,9 +10,4 @@ if [[ $(psql -U $RELAY_DB_USERNAME -d $RELAY_DB_NAME -tc 'select version from ve
   exit 1
 fi
 
-#    psql -U bolandrm -d relay_development -a -f db/schema.sql
-#    psql -U bolandrm -d relay_development -a -f dev/db/sample-data.sql
-#    psql -U $RELAY_DB_USERNAME -d $RELAY_DB_NAME -a -f db/schema.sql
-#    . dev/run.sh
-
 python3 -m app.batch
