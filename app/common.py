@@ -41,5 +41,5 @@ def get_temperature(adc, cell_version):
     return round(fahrenheit, 2)
 
 def add_temperature(row):
-    if not row['temperature']:
+    if row['temperature'] == None and row['adc'] != None:
         row['temperature'] = get_temperature(row['adc'], row['version'])
