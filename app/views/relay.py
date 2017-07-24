@@ -161,6 +161,8 @@ class Temperatures(flask.views.MethodView):
     @staticmethod
     def post():
         d = flask.request.form.copy()
+        logging.info('received temp data {}...'.format(d))
+
         d['time'] = datetime.fromtimestamp(int(d['time']))
         d['relay'] = int(d['sp']) == common.LIVE_SLEEP_PERIOD
 
@@ -168,6 +170,9 @@ class Temperatures(flask.views.MethodView):
             if not d.get(k): d[k] = None  # missing or empty => null
         if bool(d['adc']) == bool(d['temp']):
             return 'must pass exactly one of adc or temp', 400
+
+        if d.get('cell_version'):
+            db.cursor().execute('update cells set version = %s where id = %s', (d['cell_version'], d['cell'],))
 
         db.cursor().execute('insert into temperatures (hub_id, cell_id, adc, temperature, sleep_period, relay, hub_time)'
                             ' values (%(hub)s, %(cell)s, %(adc)s, %(temp)s, %(sp)s, %(relay)s, %(time)s)', d)
