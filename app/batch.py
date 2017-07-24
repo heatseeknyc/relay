@@ -3,6 +3,7 @@
 import os
 import logging
 import time
+import datetime
 
 import requests
 
@@ -32,10 +33,11 @@ def transmit():
     database = common.get_db()
     while True:
         with database:
+            fetch_after = datetime.datetime.now() - datetime.timedelta(days=365)
             cursor = database.cursor()
             cursor.execute('select temperatures.id, cell_id, adc, temperature, hub_time, version'
                            ' from temperatures left join cells on cells.id=cell_id'
-                           ' where relay and relayed_time is null')
+                           ' where relay and relayed_time is null and time > %s', (fetch_after.strftime('%Y-%m-%d'),))
             temperatures = cursor.fetchall()
         if temperatures: logging.info('%s unrelayed temperatures', len(temperatures))
 
@@ -51,9 +53,9 @@ def transmit():
                 elif status == requests.codes.not_found:
                     # give up on this cell's readings for this batch, since it will continue to 404
                     unknown_cell_ids.add(cell_id)
-                time.sleep(1)
+                time.sleep(0.3)
 
-        time.sleep(1)
+        time.sleep(0.3)
 
         # Notify deadmansnitch that the script is still running properly
         if os.environ.get('BATCH_WORKER_SNITCH_ID'):
