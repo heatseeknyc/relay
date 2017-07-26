@@ -60,9 +60,9 @@ def transmit():
                         # give up on this cell's readings for this batch, since it will continue to 400
                         logging.info("no user assocated with cell %s", cell_id)
                         unknown_cell_ids.add(cell_id)
-                time.sleep(0.3)
+                time.sleep(1)
 
-        time.sleep(0.3)
+        time.sleep(1)
 
         # Notify deadmansnitch that the script is still running properly
         if os.environ.get('BATCH_WORKER_SNITCH_ID'):
