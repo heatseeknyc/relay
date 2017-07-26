@@ -4,6 +4,7 @@ import os
 import logging
 import time
 import datetime
+import re
 
 import requests
 
@@ -25,7 +26,7 @@ def transmit_temperature(temperature):
     if response.status_code != requests.codes.ok:
         logging.error('request %s got %s response %s',
                       response.request.body, response.status_code, response.text)
-    return response.status_code
+    return response
 
 
 def transmit():
@@ -45,14 +46,20 @@ def transmit():
         for temperature in temperatures:
             cell_id = temperature['cell_id']
             if cell_id not in unknown_cell_ids:
-                status = transmit_temperature(temperature)
-                if status == requests.codes.ok:
+                response = transmit_temperature(temperature)
+                if response.status_code == requests.codes.ok:
                     with database:
                         database.cursor().execute('update temperatures set relayed_time = now()'
                                                   ' where id=%(id)s', temperature)
-                elif status == requests.codes.not_found:
+                elif response.status_code == requests.codes.not_found:
                     # give up on this cell's readings for this batch, since it will continue to 404
+                    logging.info("404 for cell %s", cell_id)
                     unknown_cell_ids.add(cell_id)
+                elif response.status_code == requests.codes.bad_request:
+                    if "No user associated with that sensor" in response.text:
+                        # give up on this cell's readings for this batch, since it will continue to 400
+                        logging.info("no user assocated with cell %s", cell_id)
+                        unknown_cell_ids.add(cell_id)
                 time.sleep(0.3)
 
         time.sleep(0.3)
