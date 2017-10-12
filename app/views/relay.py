@@ -50,7 +50,7 @@ class Hub(flask.views.MethodView):
     def get(id):
         cursor = db.cursor()
 
-        if len(id) != 16:
+        if len(id) != 16 && len(id) != 10:
             return flask.redirect(flask.url_for('hub', id=common.get_xbee_id(id, cursor)))
 
         cursor.execute('select pi_id, sleep_period, disk_free, uptime, version, port, time from hubs'
@@ -126,7 +126,7 @@ def cells():
 def cell(id):
     cursor = db.cursor()
 
-    if len(id) != 16:
+    if len(id) != 16 && len(id) != 11:
         return flask.redirect(flask.url_for('cell', id=common.get_xbee_id(id, cursor)))
 
     cursor.execute('select version from cells where id=%s', (id,))
