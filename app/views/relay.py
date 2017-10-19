@@ -164,7 +164,7 @@ class Temperatures(flask.views.MethodView):
         logging.info('received temp data {}...'.format(d))
 
         d['time'] = datetime.fromtimestamp(int(d['time']))
-        d['relay'] = int(d['sp']) == common.LIVE_SLEEP_PERIOD
+        d['relay'] = int(d['sp']) == common.LIVE_SLEEP_PERIOD or int(d['sp']) == common.FEATHER_LIVE_SLEEP_PERIOD
 
         for k in ('adc', 'temp'):  # optional parameters
             if not d.get(k): d[k] = None  # missing or empty => null

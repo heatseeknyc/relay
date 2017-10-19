@@ -6,6 +6,7 @@ import psycopg2.extras
 
 
 LIVE_SLEEP_PERIOD = (59*60 + 50) * 100  # 59m50s in centiseconds
+FEATHER_LIVE_SLEEP_PERIOD = 60*60  # 1 hour
 
 
 def get_db():
