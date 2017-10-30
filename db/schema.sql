@@ -1,4 +1,4 @@
-\set version 6  -- if you change this file, increment me!
+\set version 7  -- if you change this file, increment me!
 create table version (version integer not null);
 insert into version values (:version);
 
@@ -10,6 +10,7 @@ create table temperatures (
     -- new firmware sends adc, old firmware sends temperature:
     adc integer,
     temperature real,
+    humidity real,
     constraint adc_or_temperature check ((adc is null) != (temperature is null)),
 
     sleep_period integer not null,

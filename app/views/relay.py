@@ -135,7 +135,7 @@ def cell(id):
                    ' from temperatures left join xbees on xbees.id=hub_id'
                    ' where cell_id=%s order by hub_id, time desc', (id,))
     hubs = sorted(cursor.fetchall(), key=operator.itemgetter('time'), reverse=True)
-    cursor.execute('select hub_id, adc, temperature, sleep_period, relay, hub_time, time, relayed_time, version'
+    cursor.execute('select hub_id, adc, temperature, humidity, sleep_period, relay, hub_time, time, relayed_time, version'
                    ' from temperatures left join cells on cells.id=cell_id'
                    ' where cell_id=%s order by hub_time desc limit 100', (id,))
     temperatures = with_temperatures(cursor.fetchall())
@@ -166,7 +166,7 @@ class Temperatures(flask.views.MethodView):
         d['time'] = datetime.fromtimestamp(int(d['time']))
         d['relay'] = int(d['sp']) == common.LIVE_SLEEP_PERIOD or int(d['sp']) == common.FEATHER_LIVE_SLEEP_PERIOD
 
-        for k in ('adc', 'temp'):  # optional parameters
+        for k in ('adc', 'temp', 'humidity'):  # optional parameters
             if not d.get(k): d[k] = None  # missing or empty => null
         if bool(d['adc']) == bool(d['temp']):
             return 'must pass exactly one of adc or temp', 400
@@ -174,6 +174,6 @@ class Temperatures(flask.views.MethodView):
         if d.get('cell_version'):
             db.cursor().execute('update cells set version = %s where id = %s', (d['cell_version'], d['cell'],))
 
-        db.cursor().execute('insert into temperatures (hub_id, cell_id, adc, temperature, sleep_period, relay, hub_time)'
-                            ' values (%(hub)s, %(cell)s, %(adc)s, %(temp)s, %(sp)s, %(relay)s, %(time)s)', d)
+        db.cursor().execute('insert into temperatures (hub_id, cell_id, adc, temperature, sleep_period, relay, hub_time, humidity)'
+                            ' values (%(hub)s, %(cell)s, %(adc)s, %(temp)s, %(sp)s, %(relay)s, %(time)s, %(humidity)s)', d)
         return 'ok'

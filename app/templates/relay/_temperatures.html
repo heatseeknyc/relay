@@ -6,6 +6,7 @@
     <th>{% if t.hub_id is defined %}Hub ID{% endif %}</th>
     <th>{% if t.cell_id is defined %}Cell ID{% endif %}</th>
     <th>Temperature</th>
+    <th>Humidity</th>
     <th>Sleep Period</th>
     <th>Received At</th>
     <th>Relayed At</th>
@@ -17,6 +18,9 @@
     <td>{% if t.cell_id %}<code>{{ t.cell_id }}</code>{% endif %}</td>
     <td>
       {% if t.relay %}{{ t.temperature }}&deg;{% else %}<s>{{ t.temperature }}&deg;</s>{% endif %}
+    </td>
+    <td>
+      {% if t.relay %}{{ t.humidity }}%{% else %}<s>{{ t.humidity }}%</s>{% endif %}
     </td>
     <td>{{ t.sleep_period }}</td>
     <td>{{ t.time }}</td>
