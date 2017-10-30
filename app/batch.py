@@ -18,6 +18,7 @@ def transmit_temperature(temperature):
     common.add_temperature(temperature)
     reading = dict(sensor_name=temperature['cell_id'],
                    temp=temperature['temperature'],
+                   humidity=temperature['humidity'],
                    time=temperature['hub_time'].timestamp(),
                    verification='c0ffee')
     logging.info('POSTing {}...'.format(reading))
@@ -36,7 +37,7 @@ def transmit():
         with database:
             fetch_after = datetime.datetime.now() - datetime.timedelta(days=365)
             cursor = database.cursor()
-            cursor.execute('select temperatures.id, cell_id, adc, temperature, hub_time, version'
+            cursor.execute('select temperatures.id, cell_id, adc, temperature, hub_time, version, humidity'
                            ' from temperatures left join cells on cells.id=cell_id'
                            ' where relay and relayed_time is null and time > %s', (fetch_after.strftime('%Y-%m-%d'),))
             temperatures = cursor.fetchall()
