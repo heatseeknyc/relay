@@ -20,7 +20,9 @@
       {% if t.relay %}{{ t.temperature }}&deg;{% else %}<s>{{ t.temperature }}&deg;</s>{% endif %}
     </td>
     <td>
-      {% if t.relay %}{{ t.humidity }}%{% else %}<s>{{ t.humidity }}%</s>{% endif %}
+      {% if t.humidity %}
+        {% if t.relay %}{{ t.humidity }}%{% else %}<s>{{ t.humidity }}%</s>{% endif %}
+      {% endif %}
     </td>
     <td>{{ t.sleep_period }}</td>
     <td>{{ t.time }}</td>
