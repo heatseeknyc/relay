@@ -32,7 +32,7 @@ def on_message(client, userdata, msg):
                        ' values (%s)', [msg.payload.decode("utf-8")])
         _db.commit()
 
-        parsed = json.loads(msg.payload)
+        parsed = json.loads(msg.payload.decode("utf-8"))
 
         cell_id = parsed["dev_id"]
         logging.info(cell_id)
