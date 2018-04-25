@@ -7,6 +7,7 @@ import json
 import re
 import datetime
 from . import common, db
+import requests
 # from pdb import set_trace as bp
 
 logging.basicConfig(level=logging.INFO)
