@@ -57,3 +57,7 @@ create table commands (
     created_at timestamp with time zone not null default now()
 );
 create index on commands (hub_id, created_at);
+
+create table things_network_updates (
+  content text not null
+);

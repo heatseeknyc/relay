@@ -27,6 +27,9 @@ def get_xbee_id(id, cursor):
     if not row: flask.abort(404)
     return row['id']
 
+def c_to_f(celsius):
+    return celsius * (212 - 32) / 100 + 32
+
 def get_temperature(adc, cell_version):
     # on Xbee, 0x3FF (highest value on a 10-bit ADC) corresponds to 3.3V...ish:
     voltage = adc / 0x3FF * 3.3
@@ -38,7 +41,7 @@ def get_temperature(adc, cell_version):
     else:
         # on MCP9700A, 0.5V is 0°C, and every 0.01V difference is 1°C difference:
         celsius = (voltage - 0.5) / 0.01
-    fahrenheit = celsius * (212 - 32) / 100 + 32
+    fahrenheit = c_to_f(celsius)
     return round(fahrenheit, 2)
 
 def add_temperature(row):
