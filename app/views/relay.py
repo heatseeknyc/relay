@@ -126,7 +126,10 @@ def cells():
 def cell(id):
     cursor = db.cursor()
 
-    if len(id) != 16 and len(id) != 11:
+    # len 16 - raspberry pi units
+    # len 11 - feather units
+    # len 30 - lorawan units
+    if len(id) != 16 and len(id) != 11 and len(id) != 30:
         return flask.redirect(flask.url_for('cell', id=common.get_xbee_id(id, cursor)))
 
     cursor.execute('select version from cells where id=%s', (id,))
