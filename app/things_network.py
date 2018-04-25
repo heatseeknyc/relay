@@ -25,7 +25,7 @@ def on_message(client, userdata, msg):
     try:
         _db = db
         cursor = _db.cursor()
-        hub_id = 'lorahub'
+        hub_id = 'lorawanhub'
 
         logging.info(msg.topic + " " + str(msg.payload))
 
