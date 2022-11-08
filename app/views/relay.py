@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import logging
 import operator
 import os
+import json
 
 import flask
 import flask.views
@@ -179,4 +180,33 @@ class Temperatures(flask.views.MethodView):
 
         db.cursor().execute('insert into temperatures (hub_id, cell_id, adc, temperature, sleep_period, relay, hub_time, humidity)'
                             ' values (%(hub)s, %(cell)s, %(adc)s, %(temp)s, %(sp)s, %(relay)s, %(time)s, %(humidity)s)', d)
+        return 'ok'
+
+@route('/twilio/', 'twilio')
+class Twilio(flask.views.MethodView):
+    @staticmethod
+    def post():
+        req = flask.request.form.copy()
+        j = json.loads(req.get('Body'))
+        d = {}
+        d['hub'] = "featherhub"
+        d['adc'] = None
+        
+
+        logging.info('received twilio data {}'.format(j))
+        d['relay'] = int(j.get("i")) == common.LIVE_SLEEP_PERIOD or int(j.get("i")) == common.FEATHER_LIVE_SLEEP_PERIOD
+        d['cell'] = j.get("c")
+        d['sp'] = j.get("i")
+        # import code; code.interact(local=locals()) # Drop in to a REPL
+        for r in j.get("r"):
+            ti = 1667875724 + int(r.get("ti"))
+            d['time'] = datetime.fromtimestamp(ti)
+            d['temp'] = r.get("te")
+            d['humidity'] = r.get("h")
+
+            logging.info('insert into temperatures (hub_id, cell_id, adc, temperature, sleep_period, relay, hub_time, humidity)'
+                                ' values (%(hub)s, %(cell)s, %(adc)s, %(temp)s, %(sp)s, %(relay)s, %(time)s, %(humidity)s)', d)
+            
+            db.cursor().execute('insert into temperatures (hub_id, cell_id, adc, temperature, sleep_period, relay, hub_time, humidity)'
+                                ' values (%(hub)s, %(cell)s, %(adc)s, %(temp)s, %(sp)s, %(relay)s, %(time)s, %(humidity)s)', d)
         return 'ok'
